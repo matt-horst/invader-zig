@@ -62,10 +62,11 @@ fn create_player_texture() rl.RaylibError!rl.Texture2D {
 
 pub fn main() !void {
     // Initialization
-    const screenWidth = 800;
-    const screenHeight = 450;
+    const zoom = 2;
+    const screenWidth = 640;
+    const screenHeight = 480;
 
-    rl.initWindow(screenWidth, screenHeight, "example");
+    rl.initWindow(screenWidth * zoom, screenHeight * zoom, "example");
     defer rl.closeWindow();
 
     rl.setTargetFPS(60);
@@ -76,10 +77,9 @@ pub fn main() !void {
     const player = try create_player_texture();
     defer rl.unloadTexture(player);
 
-    const camera: rl.Camera2D = .{.offset = .{.x = 0, .y = 0}, .rotation = 0, .target = .{.x = 0, .y = 0}, .zoom = 4};
+    const camera: rl.Camera2D = .{.offset = .{.x = 0, .y = 0}, .rotation = 0, .target = .{.x = 0, .y = 0}, .zoom = zoom};
 
     while (!rl.windowShouldClose()) {
-
         rl.beginDrawing();
         defer rl.endDrawing();
 
@@ -90,8 +90,16 @@ pub fn main() !void {
 
         rl.drawTexture(
             player,
-            @intFromFloat(screenWidth / (camera.zoom * 2)), 
-            0, .white);
-        rl.drawTexture(alien, @intFromFloat(screenWidth / (camera.zoom * 2)), @intFromFloat(screenHeight / (camera.zoom * 2)), .white);
+            @intFromFloat(screenWidth / zoom), 
+            screenHeight - player.height, 
+            .white
+        );
+
+        rl.drawTexture(
+            alien,
+            @intFromFloat(screenWidth / 2),
+            @intFromFloat(screenHeight / 2), 
+            .white
+        );
     }
 }
