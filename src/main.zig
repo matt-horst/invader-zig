@@ -2,6 +2,16 @@ const std = @import("std");
 const invader_zig = @import("invader_zig");
 const rl = @import("raylib");
 
+const DrawableObject = struct {
+    posX: i32,
+    posY: i32,
+    tex: rl.Texture2D,
+
+    pub fn draw(self: @This()) void {
+        rl.drawTexture(self.tex, self.posX, self.posY, .white);
+    }
+};
+
 fn update_image_with_pixel_data(img: *rl.Image, pixels: []const i32, color: rl.Color) void {
     for (pixels, 0..) |p, i| {
         const x: i32 = @mod(@as(i32, @intCast(i)), @as(i32, @intCast(img.width)));
@@ -79,7 +89,25 @@ pub fn main() !void {
 
     const camera: rl.Camera2D = .{.offset = .{.x = 0, .y = 0}, .rotation = 0, .target = .{.x = 0, .y = 0}, .zoom = zoom};
 
+    var alienObject: DrawableObject = .{.tex = alien, .posX = screenWidth / 2, .posY = screenHeight / 2};
+    var playerObject: DrawableObject = .{.tex = player, .posX = screenWidth / 2, .posY = screenHeight - player.height};
+
+    const objects = [_]*DrawableObject{&alienObject, &playerObject};
+
     while (!rl.windowShouldClose()) {
+        // Handle inputs
+        if (rl.isKeyDown(.a)) {
+            // Move left
+            playerObject.posX -= 2;
+        }
+
+        if (rl.isKeyDown(.d)) {
+            // Move right
+            playerObject.posX += 2;
+        }
+
+        
+        // Draw screen
         rl.beginDrawing();
         defer rl.endDrawing();
 
@@ -88,18 +116,8 @@ pub fn main() !void {
 
         rl.clearBackground(.black);
 
-        rl.drawTexture(
-            player,
-            @intFromFloat(screenWidth / zoom), 
-            screenHeight - player.height, 
-            .white
-        );
-
-        rl.drawTexture(
-            alien,
-            @intFromFloat(screenWidth / 2),
-            @intFromFloat(screenHeight / 2), 
-            .white
-        );
+        for (objects) |obj| {
+            obj.draw();
+        }
     }
 }
